@@ -37,6 +37,12 @@ no dock icon. no extra windows. just quiet, reliable control over something macO
 
 ## features
 
+<p align="center">
+  <img src="./assets/readme/ui-popover.png" alt="menu bar popover" width="32%" />
+  &nbsp;&nbsp;
+  <img src="./assets/readme/ui-settings.png" alt="settings window" width="32%" />
+</p>
+
 - **one-click switching** from the menu bar. built-in mic, Bluetooth headset, USB interface, whatever you've got connected
 - **auto-switch** to your preferred device. when macOS silently changes your input (AirPods connecting, display plugging in), Control Input changes it right back
 - **device-type icons** so you can tell built-in, Bluetooth, and external devices apart at a glance
