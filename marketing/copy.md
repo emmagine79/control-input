@@ -1,67 +1,73 @@
-# Control Input -- Marketing Copy
+# control input: marketing copy
 
 ---
 
-## Elevator Pitch
+## elevator pitch
 
-Control Input is a lightweight macOS menu bar utility that lets you instantly switch audio input devices with a single click. When your AirPods Max or other Bluetooth headset hijacks your microphone, Control Input automatically reverts to your preferred mic so you never sound terrible on a call again.
-
----
-
-## Twitter / X
-
-**Variation 1 (Short)**
-
-Built a free macOS menu bar app that stops AirPods Max from hijacking your mic. One click to switch inputs. Auto-revert to your preferred device. No dock icon, no bloat, just works. github.com/...
-
-**Variation 2 (Punchy)**
-
-You are 30 seconds into a client call and your AirPods Max just took over your mic input. Everyone hears tin-can audio. Control Input lives in your menu bar and fixes this permanently. Auto-switch. Zero friction. Free and open source.
-
-**Variation 3 (Developer-focused)**
-
-Shipped Control Input -- a SwiftUI menu bar utility for macOS that solves the single most annoying audio problem on Mac: Bluetooth devices stealing your input device. Clean UI, auto-switch, theme support, no dock icon. MIT licensed.
+control input is a macOS menu bar app that lets you switch audio input devices in one click. when your AirPods Max or Bluetooth headset hijacks your mic, it automatically switches back to the one you actually want. free. open source. lives in your menu bar.
 
 ---
 
-## LinkedIn
+## twitter / x
 
-**Scratching my own itch: I built Control Input.**
+**variation 1 (short)**
 
-Every developer with AirPods Max knows the pain. You connect your headphones to listen to music, and macOS silently switches your audio input to the Bluetooth mic. Your next meeting sounds like you are talking through a paper towel tube.
+built a free macOS menu bar app because my AirPods Max kept stealing my mic on every call. one click to switch audio inputs. set a preferred device and it auto-reverts. no dock icon, no bloat.
 
-Control Input is a small macOS menu bar app that solves this completely. It lets you switch audio input devices instantly, and its auto-switch feature automatically reverts to your preferred microphone whenever a Bluetooth device tries to take over.
+github.com/emmagine79/control-input
 
-The technical details: built with SwiftUI, lives entirely in the menu bar, supports light/dark/system themes, and uses CoreAudio APIs to monitor device changes in real time. No Electron. No subscription. No telemetry.
+**variation 2 (the frustration)**
 
-It is free and open source. If you have ever lost the first two minutes of a meeting to "can you hear me?" -- this is for you.
+you're 30 seconds into a client call and your AirPods Max just hijacked your mic input. everyone hears tunnel audio. you're digging through system settings while trying to stay professional.
 
----
+built control input to fix this permanently. sits in your menu bar. auto-switches back to your preferred mic. free and open source.
 
-## Reddit (r/macapps)
+**variation 3 (dev angle)**
 
-**Title: Control Input -- free menu bar app for switching audio input devices (and stopping AirPods from hijacking your mic)**
+shipped control input today. SwiftUI menu bar app for macOS that solves the most annoying audio problem on Mac: Bluetooth devices stealing your default input.
 
-Hey r/macapps. I built a small utility to solve a problem that has been driving me crazy: every time I connect my AirPods Max, macOS decides that their built-in mic should be my audio input. Cue the "you sound weird" comments on every call.
-
-Control Input sits in your menu bar and lets you switch audio input devices with one click. The main feature is auto-switch -- you set your preferred mic once, and the app automatically reverts to it whenever another device tries to take over.
-
-What it does:
-
-- Instantly switch audio input from the menu bar
-- Auto-switch back to your preferred microphone
-- Light, dark, and system theme support
-- No dock icon, no background noise -- just a clean menu bar popover
-- Native SwiftUI, no Electron
-
-Free and open source. Happy to answer questions or take feedback.
+CoreAudio monitoring, auto-switch, theme support, no dock icon. MIT licensed. ~500 lines of Swift.
 
 ---
 
-## Product Hunt
+## linkedin
 
-**Tagline:** Take back your microphone.
+i built control input because i got tired of the same problem every day.
 
-**Description:** Control Input is a lightweight macOS menu bar utility that lets you switch audio input devices instantly. Its standout feature is auto-switch: set your preferred microphone once, and the app automatically reverts to it whenever AirPods or other Bluetooth devices try to hijack your input. Built with native SwiftUI, it lives entirely in the menu bar with no dock icon, supports light and dark themes, and is completely free and open source.
+connect AirPods Max to listen to music. macOS silently switches my audio input to the Bluetooth mic. next meeting sounds like i'm talking through a paper towel tube.
+
+control input is a small macOS menu bar app that fixes this. switch audio input devices in one click. or set a preferred mic and let the app handle it. when something tries to take over your input, it switches back automatically.
+
+technical bits: native SwiftUI, CoreAudio APIs for real-time device monitoring, lives entirely in the menu bar. no Electron. no subscription. no telemetry.
+
+it's free and open source. if you've ever lost the first two minutes of a meeting to "can you hear me?", this is for you.
+
+---
+
+## reddit (r/macapps)
+
+**title: control input, free menu bar app for switching audio inputs (and stopping AirPods from hijacking your mic)**
+
+built this because my AirPods Max kept becoming my default audio input every time they connected. drove me crazy on calls.
+
+control input sits in the menu bar and lets you switch audio inputs with one click. the main thing is auto-switch: pick your preferred mic once and the app automatically reverts to it whenever another device tries to take over.
+
+what it does:
+
+- switch audio input from the menu bar, one click
+- auto-switch back to your preferred mic
+- system, light, and dark themes
+- no dock icon, no bloat
+- native SwiftUI, not Electron
+
+free and open source. happy to hear feedback or answer questions.
+
+---
+
+## product hunt
+
+**tagline:** take back your microphone.
+
+**description:** control input is a macOS menu bar app that lets you switch audio input devices instantly. set a preferred microphone and the app automatically reverts to it whenever AirPods or other Bluetooth devices try to hijack your input. native SwiftUI, no dock icon, theme support. free and open source.
 
 ---
