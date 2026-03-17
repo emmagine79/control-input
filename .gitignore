@@ -22,3 +22,6 @@ Packages/
 
 # Release artifacts (built locally, uploaded to GitHub Releases)
 *.zip
+
+# Marketing assets (kept local, not tracked in repo)
+marketing/
