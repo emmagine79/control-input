@@ -10,16 +10,21 @@ struct SettingsView: View {
     @State private var launchAtLogin = false
 
     var body: some View {
-        Form {
-            audioSection
-            appearanceSection
-            generalSection
+        VStack(alignment: .leading, spacing: 18) {
+            settingsHeader
+
+            Form {
+                audioSection
+                appearanceSection
+                generalSection
+            }
+            .formStyle(.grouped)
         }
-        .formStyle(.grouped)
         .frame(
-            minWidth: 380, idealWidth: 460, maxWidth: 600,
-            minHeight: 260, idealHeight: 360, maxHeight: 500
+            minWidth: 420, idealWidth: 500, maxWidth: 640,
+            minHeight: 340, idealHeight: 440, maxHeight: 560
         )
+        .padding(.top, 18)
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
@@ -34,6 +39,12 @@ struct SettingsView: View {
         .onChange(of: appTheme) { _, newValue in
             (AppTheme(rawValue: newValue) ?? .system).apply()
         }
+        .onChange(of: autoSwitch) { _, enabled in
+            if enabled {
+                audioManager.refreshDevices()
+                audioManager.schedulePreferredInputEnforcement(delay: .milliseconds(150))
+            }
+        }
         .onChange(of: launchAtLogin) { _, newValue in
             updateLoginItem(enabled: newValue)
         }
@@ -41,8 +52,39 @@ struct SettingsView: View {
 
     // MARK: - Sections
 
+    private var settingsHeader: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.14))
+                Image(systemName: "lock.waveform")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+            }
+            .frame(width: 36, height: 36)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Keep the right mic in charge")
+                    .font(.title3.weight(.semibold))
+                Text(settingsStatusText)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+    }
+
     private var audioSection: some View {
         Section {
+            LabeledContent("Current Input") {
+                Text(audioManager.currentDefaultDevice?.name ?? "None")
+                    .foregroundStyle(.secondary)
+            }
+
             Picker("Preferred Input", selection: $preferredDeviceUID) {
                 Text("None").tag("")
                 ForEach(audioManager.inputDevices) { device in
@@ -52,8 +94,9 @@ struct SettingsView: View {
             }
 
             Toggle("Auto-switch when available", isOn: $autoSwitch)
+                .accessibilityIdentifier("auto-switch-toggle")
 
-            Text("When enabled, automatically switches to your preferred input device whenever it is detected — preventing other devices from taking over.")
+            Text("When enabled, Control Input waits for devices to settle, then restores your preferred microphone if macOS switches away.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } header: {
@@ -87,6 +130,18 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+
+    private var settingsStatusText: String {
+        guard autoSwitch else { return "Auto-switch is paused." }
+        guard !preferredDeviceUID.isEmpty else { return "Choose a preferred input to enable the lock." }
+        guard let preferred = audioManager.preferredDevice else {
+            return "Your preferred input is saved, but not connected."
+        }
+        if audioManager.currentDefaultDevice?.uid == preferred.uid {
+            return "\(preferred.name) is protected."
+        }
+        return "Control Input will restore \(preferred.name)."
+    }
 
     private func updateLoginItem(enabled: Bool) {
         do {

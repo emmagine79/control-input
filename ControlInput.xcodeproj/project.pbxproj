@@ -13,6 +13,9 @@
 		4C3E4A232D8F00A100B5C001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E4A132D8F00A100B5C001 /* SettingsView.swift */; };
 		4C3E4A242D8F00A100B5C001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E4A142D8F00A100B5C001 /* AppTheme.swift */; };
 		4C3E4A252D8F00A100B5C001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C3E4A152D8F00A100B5C001 /* Assets.xcassets */; };
+		4C3E4B102D8F00A100B5C001 /* AudioSwitchPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E4B002D8F00A100B5C001 /* AudioSwitchPolicy.swift */; };
+		4C3E4B112D8F00A100B5C001 /* AudioSwitchPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E4B002D8F00A100B5C001 /* AudioSwitchPolicy.swift */; };
+		4C3E4B122D8F00A100B5C001 /* AudioSwitchPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E4B012D8F00A100B5C001 /* AudioSwitchPolicyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +26,9 @@
 		4C3E4A142D8F00A100B5C001 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		4C3E4A152D8F00A100B5C001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4C3E4A162D8F00A100B5C001 /* Control Input.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Control Input.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3E4B002D8F00A100B5C001 /* AudioSwitchPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSwitchPolicy.swift; sourceTree = "<group>"; };
+		4C3E4B012D8F00A100B5C001 /* AudioSwitchPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSwitchPolicyTests.swift; sourceTree = "<group>"; };
+		4C3E4B022D8F00A100B5C001 /* ControlInputTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ControlInputTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -30,6 +36,7 @@
 			isa = PBXGroup;
 			children = (
 				4C3E4A032D8F00A100B5C001 /* ControlInput */,
+				4C3E4B032D8F00A100B5C001 /* ControlInputTests */,
 				4C3E4A042D8F00A100B5C001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -42,6 +49,7 @@
 				4C3E4A122D8F00A100B5C001 /* MenuBarContentView.swift */,
 				4C3E4A132D8F00A100B5C001 /* SettingsView.swift */,
 				4C3E4A142D8F00A100B5C001 /* AppTheme.swift */,
+				4C3E4B002D8F00A100B5C001 /* AudioSwitchPolicy.swift */,
 				4C3E4A152D8F00A100B5C001 /* Assets.xcassets */,
 			);
 			path = ControlInput;
@@ -51,8 +59,17 @@
 			isa = PBXGroup;
 			children = (
 				4C3E4A162D8F00A100B5C001 /* Control Input.app */,
+				4C3E4B022D8F00A100B5C001 /* ControlInputTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4C3E4B032D8F00A100B5C001 /* ControlInputTests */ = {
+			isa = PBXGroup;
+			children = (
+				4C3E4B012D8F00A100B5C001 /* AudioSwitchPolicyTests.swift */,
+			);
+			path = ControlInputTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -75,6 +92,23 @@
 			productReference = 4C3E4A162D8F00A100B5C001 /* Control Input.app */;
 			productType = "com.apple.product-type.application";
 		};
+		4C3E4B402D8F00A100B5C001 /* ControlInputTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4C3E4B552D8F00A100B5C001 /* Build configuration list for PBXNativeTarget "ControlInputTests" */;
+			buildPhases = (
+				4C3E4B302D8F00A100B5C001 /* Sources */,
+				4C3E4B312D8F00A100B5C001 /* Frameworks */,
+				4C3E4B322D8F00A100B5C001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ControlInputTests;
+			productName = ControlInputTests;
+			productReference = 4C3E4B022D8F00A100B5C001 /* ControlInputTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -86,6 +120,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					4C3E4A402D8F00A100B5C001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					4C3E4B402D8F00A100B5C001 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -104,6 +141,7 @@
 			projectRoot = "";
 			targets = (
 				4C3E4A402D8F00A100B5C001 /* Control Input */,
+				4C3E4B402D8F00A100B5C001 /* ControlInputTests */,
 			);
 		};
 /* End PBXProject section */
@@ -114,6 +152,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C3E4A252D8F00A100B5C001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C3E4B322D8F00A100B5C001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +174,16 @@
 				4C3E4A222D8F00A100B5C001 /* MenuBarContentView.swift in Sources */,
 				4C3E4A232D8F00A100B5C001 /* SettingsView.swift in Sources */,
 				4C3E4A242D8F00A100B5C001 /* AppTheme.swift in Sources */,
+				4C3E4B102D8F00A100B5C001 /* AudioSwitchPolicy.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C3E4B302D8F00A100B5C001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C3E4B112D8F00A100B5C001 /* AudioSwitchPolicy.swift in Sources */,
+				4C3E4B122D8F00A100B5C001 /* AudioSwitchPolicyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +191,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		4C3E4A312D8F00A100B5C001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C3E4B312D8F00A100B5C001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -316,6 +378,34 @@
 			};
 			name = Release;
 		};
+		4C3E4B532D8F00A100B5C001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.antigravity.control-input.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		4C3E4B542D8F00A100B5C001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.antigravity.control-input.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -333,6 +423,15 @@
 			buildConfigurations = (
 				4C3E4A532D8F00A100B5C001 /* Debug */,
 				4C3E4A542D8F00A100B5C001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4C3E4B552D8F00A100B5C001 /* Build configuration list for PBXNativeTarget "ControlInputTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4C3E4B532D8F00A100B5C001 /* Debug */,
+				4C3E4B542D8F00A100B5C001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

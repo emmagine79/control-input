@@ -1,5 +1,6 @@
 import Foundation
 import CoreAudio
+import Observation
 
 @Observable
 @MainActor
@@ -30,29 +31,43 @@ final class AudioDeviceManager {
         }
     }
 
+    enum SwitchSource {
+        case user
+        case automatic
+    }
+
     // MARK: - Published State
 
     var inputDevices: [AudioInputDevice] = []
     var currentDefaultDeviceID: AudioDeviceID = kAudioObjectUnknown
+    var lastSwitchError: OSStatus?
+    var isEnforcingPreferredInput = false
 
     // MARK: - Private
 
     /// Suppresses auto-switch briefly after a user-initiated change
     /// to avoid fighting with the user's manual selection.
     private var suppressAutoSwitch = false
+    private var suppressionTask: Task<Void, Never>?
+    private var enforcementTask: Task<Void, Never>?
 
     // MARK: - Init
 
     init() {
         refreshDevices()
         setupListeners()
-        autoSwitchIfNeeded()
+        schedulePreferredInputEnforcement(delay: .milliseconds(250))
     }
 
     // MARK: - Computed
 
     var currentDefaultDevice: AudioInputDevice? {
         inputDevices.first { $0.id == currentDefaultDeviceID }
+    }
+
+    var preferredDevice: AudioInputDevice? {
+        let preferredUID = UserDefaults.standard.string(forKey: "preferredAudioInputUID") ?? ""
+        return inputDevices.first { $0.uid == preferredUID }
     }
 
     // MARK: - Actions
@@ -62,9 +77,11 @@ final class AudioDeviceManager {
         currentDefaultDeviceID = Self.fetchDefaultInputDeviceID()
     }
 
-    func setDefaultInputDevice(_ device: AudioInputDevice) {
-        suppressAutoSwitch = true
-
+    @discardableResult
+    func setDefaultInputDevice(
+        _ device: AudioInputDevice,
+        source: SwitchSource = .user
+    ) -> Bool {
         var deviceID = device.id
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDefaultInputDevice,
@@ -77,29 +94,81 @@ final class AudioDeviceManager {
             UInt32(MemoryLayout<AudioDeviceID>.size),
             &deviceID
         )
-        if status == noErr {
-            currentDefaultDeviceID = device.id
+        lastSwitchError = status == noErr ? nil : status
+        guard status == noErr else { return false }
+
+        currentDefaultDeviceID = device.id
+
+        if source == .user {
+            suppressAutoSwitch = true
+            releaseManualSuppressionAfterDelay()
         }
 
-        // Allow auto-switch again after a brief delay so the system
-        // has time to settle and we don't immediately override the user.
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(2))
-            self?.suppressAutoSwitch = false
+        return true
+    }
+
+    @discardableResult
+    func autoSwitchIfNeeded() -> Bool {
+        let autoSwitch = UserDefaults.standard.bool(forKey: "autoSwitchPreferred")
+        let preferredUID = UserDefaults.standard.string(forKey: "preferredAudioInputUID") ?? ""
+        let snapshots = inputDevices.map {
+            AudioInputSnapshot(id: $0.id, uid: $0.uid)
+        }
+
+        guard let preferred = AudioSwitchPolicy.preferredDeviceToRestore(
+            devices: snapshots,
+            currentDefaultDeviceID: currentDefaultDeviceID,
+            preferredUID: preferredUID,
+            autoSwitchEnabled: autoSwitch,
+            isSuppressed: suppressAutoSwitch
+        ) else { return false }
+
+        guard let device = inputDevices.first(where: { $0.id == preferred.id }) else {
+            return false
+        }
+
+        isEnforcingPreferredInput = true
+        let didSwitch = setDefaultInputDevice(device, source: .automatic)
+        isEnforcingPreferredInput = false
+
+        if didSwitch {
+            schedulePreferredInputEnforcement(delay: .seconds(1), retryCount: 0)
+        } else {
+            schedulePreferredInputEnforcement(delay: .milliseconds(750), retryCount: 2)
+        }
+
+        return true
+    }
+
+    func schedulePreferredInputEnforcement(
+        delay: Duration = .milliseconds(500),
+        retryCount: Int = 1
+    ) {
+        enforcementTask?.cancel()
+        enforcementTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled, let self else { return }
+
+            self.refreshDevices()
+            let scheduledFollowUp = self.autoSwitchIfNeeded()
+
+            if retryCount > 0, !scheduledFollowUp {
+                self.schedulePreferredInputEnforcement(
+                    delay: .milliseconds(750),
+                    retryCount: retryCount - 1
+                )
+            }
         }
     }
 
-    func autoSwitchIfNeeded() {
-        guard !suppressAutoSwitch else { return }
-
-        let autoSwitch = UserDefaults.standard.bool(forKey: "autoSwitchPreferred")
-        let preferredUID = UserDefaults.standard.string(forKey: "preferredAudioInputUID") ?? ""
-
-        guard autoSwitch, !preferredUID.isEmpty else { return }
-        guard let preferred = inputDevices.first(where: { $0.uid == preferredUID }) else { return }
-        guard preferred.id != currentDefaultDeviceID else { return }
-
-        setDefaultInputDevice(preferred)
+    private func releaseManualSuppressionAfterDelay() {
+        suppressionTask?.cancel()
+        suppressionTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled, let self else { return }
+            self.suppressAutoSwitch = false
+            self.schedulePreferredInputEnforcement(delay: .milliseconds(250))
+        }
     }
 
     // MARK: - CoreAudio Queries
@@ -155,14 +224,28 @@ final class AudioDeviceManager {
 
     nonisolated private static func hasInputStreams(_ deviceID: AudioDeviceID) -> Bool {
         var address = AudioObjectPropertyAddress(
-            mSelector: kAudioDevicePropertyStreams,
+            mSelector: kAudioDevicePropertyStreamConfiguration,
             mScope: kAudioDevicePropertyScopeInput,
             mElement: kAudioObjectPropertyElementMain
         )
         var size: UInt32 = 0
-        return AudioObjectGetPropertyDataSize(
+        guard AudioObjectGetPropertyDataSize(
             deviceID, &address, 0, nil, &size
-        ) == noErr && size > 0
+        ) == noErr, size > 0 else { return false }
+
+        let bufferList = UnsafeMutableRawPointer.allocate(
+            byteCount: Int(size),
+            alignment: MemoryLayout<AudioBufferList>.alignment
+        )
+        defer { bufferList.deallocate() }
+
+        guard AudioObjectGetPropertyData(
+            deviceID, &address, 0, nil, &size, bufferList
+        ) == noErr else { return false }
+
+        let audioBufferList = bufferList.assumingMemoryBound(to: AudioBufferList.self)
+        let buffers = UnsafeMutableAudioBufferListPointer(audioBufferList)
+        return buffers.reduce(0) { $0 + Int($1.mNumberChannels) } > 0
     }
 
     nonisolated private static func getStringProperty(
@@ -211,7 +294,7 @@ final class AudioDeviceManager {
         ) { [weak self] _, _ in
             Task { @MainActor in
                 self?.refreshDevices()
-                self?.autoSwitchIfNeeded()
+                self?.schedulePreferredInputEnforcement()
             }
         }
 
@@ -229,7 +312,7 @@ final class AudioDeviceManager {
             Task { @MainActor in
                 guard let self else { return }
                 self.currentDefaultDeviceID = Self.fetchDefaultInputDeviceID()
-                self.autoSwitchIfNeeded()
+                self.schedulePreferredInputEnforcement()
             }
         }
     }

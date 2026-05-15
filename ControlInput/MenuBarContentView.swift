@@ -2,39 +2,103 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     let audioManager: AudioDeviceManager
+    @AppStorage("preferredAudioInputUID") private var preferredDeviceUID = ""
+    @AppStorage("autoSwitchPreferred") private var autoSwitch = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            sectionHeader
+        VStack(alignment: .leading, spacing: 8) {
+            header
+            lockStatus
 
             if audioManager.inputDevices.isEmpty {
                 emptyState
             } else {
+                sectionHeader
                 deviceList
             }
 
             Divider()
-                .padding(.vertical, 4)
+                .padding(.horizontal, 14)
+                .padding(.top, 2)
 
             settingsButton
             quitButton
 
             Spacer()
-                .frame(height: 6)
+                .frame(height: 4)
         }
-        .frame(width: 280)
+        .padding(.top, 12)
+        .frame(width: 312)
     }
 
     // MARK: - Subviews
 
+    private var header: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.14))
+                Image(systemName: "mic.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+            }
+            .frame(width: 28, height: 28)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Control Input")
+                    .font(.headline.weight(.semibold))
+                Text(audioManager.currentDefaultDevice?.name ?? "No active input")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+    }
+
+    private var lockStatus: some View {
+        HStack(spacing: 10) {
+            Image(systemName: statusIcon)
+                .font(.system(size: 13, weight: .semibold))
+                .frame(width: 20)
+                .foregroundStyle(statusColor)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(statusTitle)
+                    .font(.subheadline.weight(.semibold))
+                Text(statusSubtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(statusColor.opacity(0.10))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(statusColor.opacity(0.22), lineWidth: 1)
+        )
+        .padding(.horizontal, 10)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(statusTitle). \(statusSubtitle)")
+    }
+
     private var sectionHeader: some View {
         Text("Input Devices")
-            .font(.subheadline.weight(.semibold))
+            .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
             .textCase(.uppercase)
             .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 6)
+            .padding(.top, 4)
+            .padding(.bottom, 2)
     }
 
     private var deviceList: some View {
@@ -63,6 +127,38 @@ struct MenuBarContentView: View {
         .padding(.vertical, 12)
     }
 
+    private var statusIcon: String {
+        if !autoSwitch { return "lock.open.fill" }
+        if preferredDeviceUID.isEmpty { return "pin.slash.fill" }
+        if audioManager.preferredDevice == nil { return "exclamationmark.triangle.fill" }
+        if audioManager.currentDefaultDevice?.uid == preferredDeviceUID { return "lock.fill" }
+        return "arrow.triangle.2.circlepath"
+    }
+
+    private var statusTitle: String {
+        if !autoSwitch { return "Lock paused" }
+        if preferredDeviceUID.isEmpty { return "No preferred input" }
+        if audioManager.preferredDevice == nil { return "Preferred input missing" }
+        if audioManager.currentDefaultDevice?.uid == preferredDeviceUID { return "Locked to preferred input" }
+        return "Restoring preferred input"
+    }
+
+    private var statusSubtitle: String {
+        if !autoSwitch { return "Auto-switch is off" }
+        if preferredDeviceUID.isEmpty { return "Pick a device in Settings" }
+        if let preferred = audioManager.preferredDevice {
+            return preferred.name
+        }
+        return "Reconnect the saved device"
+    }
+
+    private var statusColor: Color {
+        if !autoSwitch || preferredDeviceUID.isEmpty { return .secondary }
+        if audioManager.preferredDevice == nil || audioManager.lastSwitchError != nil { return .orange }
+        if audioManager.currentDefaultDevice?.uid == preferredDeviceUID { return .green }
+        return .accentColor
+    }
+
     private var settingsButton: some View {
         SettingsLink {
             HStack(spacing: 10) {
@@ -86,6 +182,8 @@ struct MenuBarContentView: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 6)
+        .accessibilityLabel("Open Settings")
+        .accessibilityIdentifier("settings-button")
     }
 
     private var quitButton: some View {
@@ -141,6 +239,8 @@ private struct DeviceRow: View {
         .onHover { hovering in
             isHovered = hovering
         }
+        .accessibilityLabel("\(device.name)\(isSelected ? ", current input" : "")")
+        .accessibilityIdentifier("device-\(device.uid)")
     }
 }
 
@@ -184,5 +284,7 @@ private struct MenuBarButton: View {
             isHovered = hovering
         }
         .padding(.horizontal, 6)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(label.lowercased().replacingOccurrences(of: " ", with: "-"))
     }
 }
