@@ -21,10 +21,11 @@ struct SettingsView: View {
             .formStyle(.grouped)
         }
         .frame(
-            minWidth: 420, idealWidth: 500, maxWidth: 640,
-            minHeight: 340, idealHeight: 440, maxHeight: 560
+            minWidth: 420, idealWidth: 500, maxWidth: .infinity,
+            minHeight: 420, idealHeight: 520, maxHeight: .infinity
         )
         .padding(.top, 18)
+        .background(SettingsWindowAccessor())
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
@@ -57,7 +58,7 @@ struct SettingsView: View {
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.14))
-                Image(systemName: "lock.waveform")
+                Image(systemName: "mic.fill")
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Color.accentColor)
             }
@@ -153,6 +154,25 @@ struct SettingsView: View {
         } catch {
             // Revert on failure.
             launchAtLogin = SMAppService.mainApp.status == .enabled
+        }
+    }
+}
+
+private struct SettingsWindowAccessor: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        configureWindow(for: view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        configureWindow(for: nsView)
+    }
+
+    private func configureWindow(for view: NSView) {
+        DispatchQueue.main.async {
+            guard let window = view.window else { return }
+            SettingsWindowPresenter.configure(window)
         }
     }
 }

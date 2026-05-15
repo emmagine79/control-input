@@ -1,7 +1,45 @@
 import SwiftUI
 
+@MainActor
+enum SettingsWindowPresenter {
+    static func open(_ openSettings: OpenSettingsAction) {
+        openSettings()
+        bringSettingsToFront()
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(150))
+            bringSettingsToFront()
+        }
+    }
+
+    static func configure(_ window: NSWindow) {
+        window.collectionBehavior.insert(.canJoinAllSpaces)
+        window.collectionBehavior.insert(.fullScreenAuxiliary)
+        window.minSize = NSSize(width: 420, height: 420)
+
+        if window.frame.height < 520 {
+            window.setContentSize(NSSize(
+                width: max(window.frame.width, 500),
+                height: 520
+            ))
+        }
+    }
+
+    private static func bringSettingsToFront() {
+        NSApp.activate(ignoringOtherApps: true)
+
+        for window in NSApp.windows where window.title.localizedCaseInsensitiveContains("settings") {
+            configure(window)
+            window.collectionBehavior.insert(.moveToActiveSpace)
+            window.orderFrontRegardless()
+            window.makeKeyAndOrderFront(nil)
+        }
+    }
+}
+
 struct MenuBarContentView: View {
     let audioManager: AudioDeviceManager
+    @Environment(\.openSettings) private var openSettings
     @AppStorage("preferredAudioInputUID") private var preferredDeviceUID = ""
     @AppStorage("autoSwitchPreferred") private var autoSwitch = true
 
@@ -160,7 +198,9 @@ struct MenuBarContentView: View {
     }
 
     private var settingsButton: some View {
-        SettingsLink {
+        Button {
+            SettingsWindowPresenter.open(openSettings)
+        } label: {
             HStack(spacing: 10) {
                 Image(systemName: "gear")
                     .font(.system(size: 13))
